@@ -7,8 +7,6 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const User = require('../models/user');  // Import User model
 
-
-
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
@@ -29,7 +27,6 @@ const upload = multer({ dest: path.join(__dirname, '../public/uploads/') });
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.urlencoded({ extended: true })); // To parse form data
-
 
 // Set the view engine to EJS
 app.set('view engine', 'ejs');
@@ -147,16 +144,27 @@ io.on('connection', socket => {
     socket.on('end-call', () => {
         socket.broadcast.emit('end-call');
     });
+
+    // Handle screen sharing signaling
+    socket.on('screen-share-offer', (offer) => {
+        socket.broadcast.emit('screen-share-offer', offer);
+    });
+
+    socket.on('screen-share-answer', (answer) => {
+        socket.broadcast.emit('screen-share-answer', answer);
+    });
+
+    socket.on('screen-share-ice-candidate', (candidate) => {
+        socket.broadcast.emit('screen-share-ice-candidate', candidate);
+    });
+
+    socket.on('end-screen-share', () => {
+        socket.broadcast.emit('end-screen-share');
+    });
 });
-
-
-
-
 
 // Start the server
 const PORT = process.env.PORT || 8000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
-
